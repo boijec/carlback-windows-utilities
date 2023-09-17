@@ -1,0 +1,17 @@
+[package]
+name = "carlback-utils"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[[bin]]
+name = "ls"
+path = "src/ls/bin/main.rs"
+
+[[bin]]
+name = "clear"
+path = "src/clear/bin/main.rs"
+
+[dependencies]
+clap = "4.4.3"
