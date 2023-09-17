@@ -10,7 +10,7 @@ env:
 
 jobs:
   build-and-zip:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -23,16 +23,16 @@ jobs:
       - name: Build with cargo
         run: |
           cargo build --release --target=x86_64-pc-windows-msvc
-        shell: bash
+        shell: powershell
 
       - name: Zip binaries
         run: |
-          mkdir -p dist
-          mkdir -p carlback_utils
-          mkdir -p carlback_utils/bin
-          mv target/x86_64-pc-windows-msvc/release/*.exe carlback_utils/bin/.
-          zip -r dist/duddde_archive.zip carlback_utils/bin/*.exe
-        shell: bash
+          New-Item -ItemType Directory -Force -Path dist
+          New-Item -ItemType Directory -Force -Path carlback_utils
+          New-Item -ItemType Directory -Force -Path carlback_utils/bin
+          Move-Item -Path "target/x86_64-pc-windows-msvc/release/*.exe" -Destination "carlback_utils/bin/" -Force
+          Compress-Archive -Path carlback_utils/bin/*.exe -Destination dist/duddde_archive.zip
+        shell: powershell
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3.1.3
