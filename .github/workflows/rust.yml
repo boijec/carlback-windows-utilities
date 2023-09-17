@@ -1,0 +1,41 @@
+name: Rust
+
+on:
+  release:
+    types:
+      - created
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-and-zip:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1.0.6
+        with:
+          toolchain: stable
+
+      - name: Build with cargo
+        run: |
+          cargo build --release --target=x86_64-pc-windows-msvc
+        shell: bash
+
+      - name: Zip binaries
+        run: |
+          mkdir -p dist
+          mkdir -p carlback_utils
+          mkdir -p carlback_utils/bin
+          mv target/x86_64-pc-windows-msvc/release/*.exe carlback_utils/bin/.
+          zip -r dist/duddde_archive.zip carlback_utils/bin/*.exe
+        shell: bash
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3.1.3
+        with:
+          name: carlback_utils_x64.zip
+          path: dist/duddde_archive.zip
