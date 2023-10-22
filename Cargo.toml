@@ -15,3 +15,4 @@ path = "src/clear/bin/main.rs"
 
 [dependencies]
 clap = "4.4.3"
+carlback_libs = { path = "src/carlback-libs" }

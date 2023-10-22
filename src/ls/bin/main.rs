@@ -1,44 +1,46 @@
-use std::{fs::read_dir, os::windows::prelude::MetadataExt};
+use std::{fs::read_dir, os::windows::prelude::MetadataExt, env};
 
 mod list_source_core;
-use clap::{Arg, Command, ArgAction};
-use list_source_core::PrintMode;
+use list_source_core::{PrintMode, print_usage, interpret_args};
+use carlback_libs::{parse_args, ParseError};
 
 fn main() {
-    let matches = Command::new("List Source")
-        .version("0.1.0")
-        .author("Carl \"Callback\" Boije <boijec@gmail.com>")
-        .about("List source information about the FILEs (the current directory by default).")
-        .arg(Arg::new("print-all")
-            .short('a')
-            .required(false)
-            .action(ArgAction::SetTrue)
-            .help("Shows all files, including hidden files")
-        )
-        .arg(Arg::new("list-view")
-            .short('l')
-            .required(false)
-            .conflicts_with("comma-view")
-            .action(ArgAction::SetTrue)
-            .help("Forcibly formats files into list view")
-        )
-        .arg(Arg::new("comma-view")
-            .short('m')
-            .required(false)
-            .conflicts_with("list-view")
-            .action(ArgAction::SetTrue)
-            .help("Forcibly formats files into a comma separated array")
-        )
-        .arg(Arg::new("location")
-            .value_name("FILE")
-            .default_value(".")
-        )
-        .get_matches();
-    let print_all = matches.get_flag("print-all");
-    let _force_list = matches.get_flag("list-view");
-    let location = matches.get_one::<String>("location").unwrap();
-
-    handle_filesystem(&location, print_all, PrintMode::from_char('a'));
+    match parse_args(env::args().len(), env::args()) {
+        Ok(args) => {
+            let err = interpret_args(args);
+            match err {
+                Ok(flags) => {
+                    for flag in flags {
+                        println!("{}", flag);
+                    }
+                },
+                Err(_) => {
+                    print_usage();
+                }
+            }
+        },
+        Err(err) => {
+            match err {
+                ParseError::NoArguments => {
+                    handle_filesystem(".", false, PrintMode::Simple);
+                },
+                _ => {
+                    println!("ls: Fatal Error: {:?}", err);
+                }
+            }
+        }
+    }
+    // let (usize, Box<dyn Vec<Option<String>>>) = parse_args(env::args().len(), env::args());
+    // if usize == 1 {
+    //     println!("ls: Fatal_Error: Cannot use more than one display mode at a time.");
+    //     return;
+    // }
+    // let print_all = matches.get_flag("print-all");
+    // let force_list = matches.get_one::<String>("list-view");
+    // let force_comma_view = matches.get_one::<String>("comma-view");
+    // let location = matches.get_one::<String>("location").unwrap();
+    
+    // handle_filesystem(&location, print_all, PrintMode::from_char('a'));
 }
 
 // TODO: Add support for color printing on directories
